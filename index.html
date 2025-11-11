@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 
+      This is the text that shows up in the browser tab.
+      TODO: Change "[Best Friend's Name]" to your friend's name!
+    --><title>Happy Birthday, [Best Friend's Name]!</title>
+    
+    <!-- This loads Tailwind CSS, which we use for all the styling --><script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- This loads the confetti library for our surprise! --><script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- This loads Tone.js for our audio surprise! --><script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    
+    <!-- 
+      NEW: Loading two fonts. 'Inter' for the body, and 'Pacifico' for the fancy script title.
+    --><link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Pacifico&display=swap" rel="stylesheet">
+    
+    <style>
+      /* This tells Tailwind to use the 'Inter' font as the default */
+      body {
+        font-family: 'Inter', sans-serif;
+        
+        /* NEW: Animated Gradient Background! 
+          This replaces the old static gradient.
+        */
+        background: linear-gradient(135deg, #fbc2eb, #a6c1ee, #fecdd3, #a6c1ee);
+        background-size: 400% 400%;
+        animation: animated-gradient 15s ease infinite;
+      }
+      
+      @keyframes animated-gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      /* NEW: A class to apply the 'Pacifico' script font */
+      .font-script {
+        font-family: 'Pacifico', cursive;
+      }
+      
+      /* A little extra sparkle for the header! */
+      .sparkle-text {
+        background: linear-gradient(90deg, #d946ef, #fb923c, #facc15, #a3e635, #4ade80, #38bdf8, #818cf8, #d946ef);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradient-flow 5s ease infinite;
+        background-size: 200% 200%;
+      }
+      
+      @keyframes gradient-flow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      /* A simple fade-in animation for the pages */
+      .page-fade-in {
+        animation: fadeIn 0.8s ease-out forwards;
+        opacity: 0;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      /* Helper to reset animation, used in JS */
+      .no-animation {
+        opacity: 1;
+        transform: none;
+        animation: none;
+      }
+      
+      /* Animation for wrong password */
+      .wrong-shake {
+        animation: shake 0.5s ease-in-out;
+      }
+      
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+        20%, 40%, 60%, 80% { transform: translateX(10px); }
+      }
+      
+      /* Animation for memory photos */
+      .flip-in {
+        opacity: 0;
+        transform: rotateY(-90deg);
+        animation: flipIn 0.6s ease-out forwards;
+      }
+      
+      @keyframes flipIn {
+        from { opacity: 0; transform: rotateY(-90deg); }
+        to { opacity: 1; transform: rotateY(0deg); }
+      }
+      
+      /* ============================================================
+        NEW: CURTAIN REVEAL STYLES
+        ============================================================
+      */
+      .curtain-container {
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .curtain {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 50%; /* Each curtain is half */
+        /* A nice bright pink for the curtains */
+        background-color: #f472b6; 
+        /* Add a subtle shadow to the curtain edge */
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        /* This is the animation! */
+        transition: transform 1.2s cubic-bezier(0.83, 0, 0.17, 1);
+        z-index: 10;
+      }
+      
+      .curtain-left {
+        left: 0;
+      }
+      
+      .curtain-right {
+        right: 0;
+      }
+      
+      /* This class will be added by JS to open the curtains */
+      .curtains-open .curtain-left {
+        transform: translateX(-100%);
+      }
+      
+      .curtains-open .curtain-right {
+        transform: translateX(100%);
+      }
+    </style>
+</head>
+<body>
+
+  <!-- 
+    This is the main container for all the content.
+    The animated background is on the <body> tag now.
+  --><div class="min-h-screen flex items-center justify-center p-6">
+    
+    <!-- 
+      ============================================================
+      PAGE 1: THE TEASER
+      ============================================================
+    --><div id="page-1" class="page-content bg-white rounded-2xl shadow-2xl p-8 md:p-12 max-w-2xl w-full text-center page-fade-in">
+      <!-- 
+        HEADER
+        TODO: Change "[Best Friend's Name]" to your friend's name!
+        NEW: Added 'font-script' class and made text larger.
+      --><h1 class="text-5xl md:text-6xl mb-4 sparkle-text font-script">
+        Happy Birthday, [Best Friend's Name]!
+      </h1>
+      <p class="text-xl text-gray-600 mb-12">
+        A special day deserves a special surprise...
+      </p>
+      
+      <img 
+        src="https://placehold.co/600x300/FADADD/333?text=A+Surprise+is+Waiting..." 
+        alt="Surprise" 
+        class="w-full h-48 md:h-64 object-cover rounded-xl shadow-lg mb-12"
+      >
+      
+      <p class="text-lg text-gray-700 mb-8">
+        This is a little website all for you. Ready to start?
+      </p>
+      
+      <!-- Button to go to Page 2 (Password Page) --><button 
+        onclick="showPage('page-2')"
+        class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 focus:outline-none"
+      >
+        Start the Journey...
+      </button>
+    </div>
+
+    <!-- 
+      ============================================================
+      PAGE 2: THE "LOCK"
+      ============================================================
+    --><div id="page-2" class="page-content bg-white rounded-2xl shadow-2xl p-8 md:p-12 max-w-2xl w-full text-center hidden">
+      
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">Access Granted... Almost!</h2>
+      <p class="text-lg text-gray-700 mb-8">
+        To continue, you must answer this secret question...
+      </p>
+      
+      <!-- 
+        TODO: Change the text in the <label> to be your hint or question!
+        (e.g., "What's our favorite cafe?" or "What's my embarrassing nickname for you?")
+      --><label for="password-input" class="block text-xl font-medium text-indigo-600 mb-4">
+        It appears in sweet shops during the monsoon season, specifically for the month of Sawan
+      </label>
+      
+      <input 
+        type="text" 
+        id="password-input"
+        class="w-full max-w-sm p-3 rounded-lg border-2 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition duration-300"
+        placeholder="Type your answer..."
+      >
+      
+      <p id="password-error" class="text-red-500 font-medium mt-3 h-6"></p>
+      
+      <!-- Button to check the password --><button 
+        onclick="checkPassword()"
+        class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 focus:outline-none mt-6"
+      >
+        Unlock the next page
+      </button>
+      
+    </div>
+    
+    <!-- 
+      ============================================================
+      PAGE 3: THE MEMORIES
+      ============================================================
+    --><div id="page-3" class="page-content bg-white rounded-2xl shadow-2xl p-8 md:p-12 max-w-2xl w-full text-center hidden">
+      
+      <div class="mb-8">
+        <h2 class="text-3xl font-bold text-indigo-600 mb-6 text-center flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4V5h12v10zM9 9a1 1 0 100 2 1 1 0 000-2zm1-4a1 1 0 011 1v1a1 1 0 11-2 0V6a1 1 0 011-1zM9 13.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" clip-rule="evenodd" />
+            <path d="M13 10a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Remember when...
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <!-- 
+            TODO: Add your photos and captions below.
+            NEW: Added 'hover:scale-110' for a more pronounced hover effect.
+          --><div class="flip-in transform transition-transform duration-300 hover:scale-110" style="animation-delay: 0s;">
+            <img src="https://i.postimg.cc/B6Hg4Cwf/IMG-20251109-132133.jpg" alt="A fun memory" class="h-32 md:h-40 w-full object-cover rounded-lg shadow-md">
+          </div>
+          <div class="flip-in transform transition-transform duration-300 hover:scale-110" style="animation-delay: 0.2s;">
+            <img src="https://i.postimg.cc/1zLHkdBM/Whats-App-Image-2025-11-11-at-21-41-00-8845db85.jpg" alt="A fun memory" class="h-32 md:h-40 w-full object-cover rounded-lg shadow-md">
+          </div>
+          <div class="flip-in transform transition-transform duration-300 hover:scale-110" style="animation-delay: 0.4s;">
+            <img src="https://i.postimg.cc/g0fDC7sV/Whats_App_Image_2025_11_11_at_22_49_11_7124fd53.jpg" alt="A fun memory" class="h-32 md:h-40 w-full object-cover rounded-lg shadow-md">
+          </div>
+        </div>
+      </div>
+      
+      <p class="text-lg text-gray-700 my-8">
+        So many good times... but the surprise isn't over!
+      </p>
+      
+      <!-- Button to go to Page 4 --><button 
+        onclick="showPage('page-4')"
+        class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 focus:outline-none"
+      >
+        See the final page...
+      </button>
+      
+    </div>
+
+    <!-- 
+      ============================================================
+      PAGE 4: THE BIG REVEAL
+      ============================================================
+    --><div id="page-4" class="page-content bg-white rounded-2xl shadow-2xl p-8 md:p-12 max-w-2xl w-full text-center hidden">
+      
+      <h1 class="text-3xl font-bold text-gray-800 mb-8">Final Surprise!</h1>
+      
+      <!-- 
+        NEW: CURTAIN REVEAL STRUCTURE
+        The image is inside this container, hidden by the curtains.
+        I've added 'border-4 border-gray-300 shadow-xl' for a more distinct frame.
+      --><div id="curtain-container" class="curtain-container w-full h-64 md:h-80 rounded-xl bg-gray-200 border-4 border-gray-300 shadow-xl mb-8">
+        <!-- The curtains --><div class="curtain curtain-left"></div>
+        <div class="curtain curtain-right"></div>
+        
+        <!-- 
+          MAIN IMAGE
+          TODO: Replace the 'src' link below with a URL to your favorite photo!
+        --><img 
+          src="https://i.postimg.cc/W4QnBy8n/Whats_App_Image_2025_11_11_at_21_42_33_25e83aaa.jpg" 
+          alt="A photo of my best friend" 
+          class="w-full h-full object-cover"
+        >
+      </div>
+      
+      <!-- 
+        NEW: Button to open the curtains.
+        This button will be hidden, and the content below will be shown, on click.
+      --><button 
+        id="reveal-photo-button"
+        onclick="revealPhoto()"
+        class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 focus:outline-none mb-8"
+      >
+        Click to see this...
+      </button>
+
+      <!-- 
+        NEW: This 'final-content' div is hidden until the button above is clicked.
+      --><div id="final-content" class="hidden">
+        
+        <!-- 
+          PERSONAL MESSAGE
+          TODO: Write your heartfelt message inside the <p> tag below.
+        --><div class="text-left mb-8">
+          <h2 class="text-2xl font-bold text-pink-600 mb-3 flex items-center justify-center md:justify-start">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+            </svg>
+            A little note for my bestie...
+          </h2>
+          <p class="text-gray-700 leading-relaxed text-lg">
+            Dua mein aapke liye kya maangu, 
+Har pal khushiyon se bhara ho aapka jahaan, 
+Sitaara kya doon usko tohfe mein, 
+Jo khud aasman ka sabse roshan sitaara ho.
+          </p>
+        </div>
+        
+        <!-- 
+          INTERACTIVE SURPRISE
+          This button will show a hidden message when clicked.
+        --><button 
+          id="surprise-button"
+          onclick="showSurprise()"
+          class="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 focus:outline-none animate-pulse"
+        >
+          Click for the GRAND FINALE!
+        </button>
+        
+        <!-- 
+          This is the hidden message.
+          TODO: Change the text inside the <div> to your special surprise message!
+        --><div id="surprise-message" class="hidden mt-6 bg-green-100 border-l-4 border-green-500 text-green-800 p-4 rounded-lg text-left">
+          <h3 class="font-bold">Surprise!</h3>
+          <p>Aapke janamdin par hum dete hain yeh dua, 
+Khushiyan aapke daaman se kabhi na hon juda, 
+Aapki muskaan bani rahe har pal, 
+Bas itni si iltija hai uss rab se har dafaa.</p>
+        </div>
+        
+        <!-- 
+          CLOSING
+          TODO: Change "[Your Name]" to your name.
+        --><div class="mt-12 text-right">
+          <p class="text-xl font-medium text-gray-800">
+            Lots of Best Wishes,
+          </p>
+          <p class="text-2xl font-bold text-pink-500">
+            Nikunj
+          </p>
+        </div>
+        
+      </div> <!-- End of 'final-content' div --></div>
+    
+  </div>
+  
+  <script>
+    // --- Page Navigation ---
+    const pages = document.querySelectorAll('.page-content');
+    
+    function showPage(pageId) {
+      pages.forEach(page => {
+        page.classList.add('hidden');
+        page.classList.remove('page-fade-in');
+        page.classList.add('no-animation');
+      });
+      
+      // NEW: Reset curtain state every time we change pages
+      const curtainContainer = document.getElementById('curtain-container');
+      const revealButton = document.getElementById('reveal-photo-button');
+      const finalContent = document.getElementById('final-content');
+      
+      if (curtainContainer) {
+        curtainContainer.classList.remove('curtains-open');
+      }
+      if (revealButton) {
+        revealButton.classList.remove('hidden');
+      }
+      if (finalContent) {
+        finalContent.classList.add('hidden');
+        finalContent.classList.remove('page-fade-in');
+      }
+      // End of reset
+      
+      
+      const targetPage = document.getElementById(pageId);
+      if (targetPage) {
+        targetPage.classList.remove('hidden');
+        targetPage.classList.remove('no-animation');
+        setTimeout(() => {
+          targetPage.classList.add('page-fade-in');
+        }, 10);
+      }
+    }
+
+    // --- Password Check Logic ---
+    function checkPassword() {
+      // The password is set to '1234' as requested.
+      const correctPassword = "Ghewar";
+      
+      const input = document.getElementById('password-input');
+      const error = document.getElementById('password-error');
+      
+      // We use toLowerCase() and trim() to make it case-insensitive and ignore spaces
+      if (input.value.trim().toLowerCase() === correctPassword.trim().toLowerCase()) {
+        // Correct! Go to page 3
+        showPage('page-3');
+        error.innerText = "";
+        input.value = ""; // Clear the input
+      } else {
+        // Wrong! Show error and shake
+        error.innerText = "Nope, that's not it! Try again.";
+        input.classList.add('wrong-shake');
+        
+        // Remove the shake animation after it finishes
+        setTimeout(() => {
+          input.classList.remove('wrong-shake');
+        }, 500);
+      }
+    }
+    
+    // --- NEW: Curtain Reveal Function ---
+    function revealPhoto() {
+      const curtainContainer = document.getElementById('curtain-container');
+      const revealButton = document.getElementById('reveal-photo-button');
+      const finalContent = document.getElementById('final-content');
+      
+      // Add the class to open the curtains
+      curtainContainer.classList.add('curtains-open');
+      
+      // Hide the reveal button
+      revealButton.classList.add('hidden');
+      
+      // Show the final content (message, surprise button, etc.)
+      // We add a delay to let the curtains open first
+      setTimeout(() => {
+        finalContent.classList.remove('hidden');
+        // Add a fade-in animation for extra polish
+        finalContent.classList.add('page-fade-in'); 
+      }, 800); // 800ms, just before the 1.2s curtain animation finishes
+    }
+
+    // --- Surprise Button Logic (with AUDIO!) ---
+    
+    // Create a new synth (instrument) from Tone.js
+    const synth = new Tone.Synth().toDestination();
+    
+    // The notes for "Happy Birthday"
+    const happyBirthdayMelody = [
+      { note: 'C4', duration: '8n', time: '0:0' }, { note: 'C4', duration: '8n', time: '0:0.5' },
+      { note: 'D4', duration: '4n', time: '0:1' }, { note: 'C4', duration: '4n', time: '0:2' },
+      { note: 'F4', duration: '4n', time: '0:3' }, { note: 'E4', duration: '2n', time: '0:4' },
+      { note: 'C4', duration: '8n', time: '1:0' }, { note: 'C4', duration: '8n', time: '1:0.5' },
+      { note: 'D4', duration: '4n', time: '1:1' }, { note: 'C4', duration: '4n', time: '1:2' },
+      { note: 'G4', duration: '4n', time: '1:3' }, { note: 'F4', duration: '2n', time: '1:4' },
+      { note: 'C4', duration: '8n', time: '2:0' }, { note: 'C4', duration: '8n', time: '2:0.5' },
+      { note: 'C5', duration: '4n', time: '2:1' }, { note: 'A4', duration: '4n', time: '2:2' },
+      { note: 'F4', duration: '4n', time: '2:3' }, { note: 'E4', duration: '4n', time: '2:4' },
+      { note: 'D4', duration: '4n', time: '2:5' }, { note: 'Bb4', duration: '8n', time: '3:0' },
+      { note: 'Bb4', duration: '8n', time: '3:0.5' }, { note: 'A4', duration: '4n', time: '3:1' },
+      { note: 'F4', duration: '4n', time: '3:2' }, { note: 'G4', duration: '4n', time: '3:3' },
+      { note: 'F4', duration: '2n', time: '3:4' }
+    ];
+
+    let audioInitialized = false;
+
+    function showSurprise() {
+      const message = document.getElementById('surprise-message');
+      const button = document.getElementById('surprise-button');
+      
+      message.classList.remove('hidden');
+      button.classList.remove('animate-pulse');
+      button.innerText = 'HAPPY BIRTHDAY!!! 🥳';
+      button.disabled = true;
+      
+      // Trigger the confetti!
+      confetti({
+        particleCount: 200,
+        spread: 120,
+        origin: { y: 0.6 }
+      });
+      
+      // --- Play the audio! ---
+      // We must start Tone.js *after* a user interaction (like a click)
+      // We check if it's already initialized (it was, by the *first* click on the page)
+      if (!audioInitialized) {
+        Tone.start().then(() => {
+          console.log('Audio context started');
+          audioInitialized = true;
+          playMelody();
+        });
+      } else {
+        playMelody();
+      }
+    }
+    
+    function playMelody() {
+      // Create a new Part (a piece of music)
+      const part = new Tone.Part((time, value) => {
+        synth.triggerAttackRelease(value.note, value.duration, time);
+      }, happyBirthdayMelody);
+      
+      // Start the part and the main music transport
+      part.start(0);
+      Tone.Transport.start();
+    }
+    
+    // NEW: We need to initialize the audio context on the *first* user click
+    // This is a browser security requirement.
+    document.body.addEventListener('click', () => {
+      if (!audioInitialized) {
+        Tone.start().then(() => {
+          console.log('Audio context started');
+          audioInitialized = true;
+        });
+      }
+    }, { once: true }); // 'once: true' makes it only run the first time
+    
+  </script>
+
+</body>
+</html>
